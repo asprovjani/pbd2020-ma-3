@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MiniApp3</string>
+    <string name="pbd_string">PBD2020</string>
+    <string name="app_name_splash">Android Mini App 3</string>
 </resources>
