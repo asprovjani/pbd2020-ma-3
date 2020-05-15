@@ -2,4 +2,9 @@
     <string name="app_name">MiniApp3</string>
     <string name="pbd_string">PBD2020</string>
     <string name="app_name_splash">Android Mini App 3</string>
+    <string name="searchTab">SEARCH RECIPE BY INGREDIENT</string>
+    <string name="favoriteTab">FAVORITE RECIPES</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
