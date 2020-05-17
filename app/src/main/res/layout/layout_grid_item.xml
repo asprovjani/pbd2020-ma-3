@@ -22,7 +22,7 @@
                 android:src="@mipmap/ic_launcher"
                 android:layout_width="match_parent"
                 android:scaleType="center"
-                android:layout_height="wrap_content" />
+                android:layout_height="150dp" />
 
             <TextView
                 android:id="@+id/text_view_content"

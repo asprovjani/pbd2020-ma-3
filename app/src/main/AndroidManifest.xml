@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="si.uni_lj.fri.pbd.miniapp3">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".CoreApplication"
         android:allowBackup="true"

@@ -22,6 +22,10 @@ public class ServiceGenerator {
         sBuilder = new Retrofit.Builder().baseUrl(Constants.BASE_URL).addConverterFactory(GsonConverterFactory.create()); // TODO: add converter
 
         /// TODO: create Interceptor and add it to client
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        sHttpClient.addInterceptor(loggingInterceptor);
 
         sRetrofit = sBuilder.client (sHttpClient.build()).build();
         Timber.d("Retrofit built with base url: %s", sRetrofit.baseUrl().url().toString());
