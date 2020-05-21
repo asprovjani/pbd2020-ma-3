@@ -4,7 +4,10 @@
     <string name="app_name_splash">Android Mini App 3</string>
     <string name="searchTab">SEARCH RECIPE BY INGREDIENT</string>
     <string name="favoriteTab">FAVORITE RECIPES</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="noRecipesExist">No Recipes found for given ingredient.Try another ingredient.</string>
+    <string name="ingredients">Ingredients list</string>
+    <string name="measurements">Measurements list</string>
+    <string name="instructions">Instructions</string>
+    <string name="addFavorites">Add to favorites</string>
+    <string name="removeFavorites">Remove from favorites</string>
 </resources>

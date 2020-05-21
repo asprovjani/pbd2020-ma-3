@@ -2,6 +2,7 @@ package si.uni_lj.fri.pbd.miniapp3.adapter;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +26,7 @@ import java.util.List;
 
 import si.uni_lj.fri.pbd.miniapp3.R;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.RecipeSummaryDTO;
+import si.uni_lj.fri.pbd.miniapp3.ui.DetailsActivity;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecipeViewHolder> {
     private String instantiatedBy;
@@ -45,13 +48,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
             this.recipeImageView = itemView.findViewById(R.id.image_view);
             this.recipeTextView = itemView.findViewById(R.id.text_view_content);
-            /*
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // TODO show recipe details in DetailsActivity
-                }
-            }); */
+
         }
     }
 
@@ -68,6 +65,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         RecipeSummaryDTO r = recipes.get(position);
         Glide.with(context).load(r.getStrMealThumb()).into(holder.recipeImageView);
         holder.recipeTextView.setText(r.getStrMeal());
+
+        holder.recipeImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent recipeDetails = new Intent(context, DetailsActivity.class);
+                recipeDetails.putExtra("instantiatedBy", instantiatedBy);
+                recipeDetails.putExtra("recipeID", r.getIdMeal());
+                context.startActivity(recipeDetails);
+            }
+        });
     }
 
     @Override

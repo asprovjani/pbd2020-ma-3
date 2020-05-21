@@ -44,11 +44,9 @@ public class SpinnerAdapter extends BaseAdapter {
         if(convertView == null) {
             inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.spinner_item, null);
-
-            TextView tvIngredient = convertView.findViewById(R.id.text_view_spinner_item);
-            tvIngredient.setText(ingredients.get(position).getStrIngredient());
         }
-
+        TextView tvIngredient = convertView.findViewById(R.id.text_view_spinner_item);
+        tvIngredient.setText(ingredients.get(position).getStrIngredient());
         return convertView;
     }
 }

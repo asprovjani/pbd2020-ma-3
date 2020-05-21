@@ -6,6 +6,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.IngredientsDTO;
+import si.uni_lj.fri.pbd.miniapp3.models.dto.RecipesByIdDTO;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.RecipesByIngredientDTO;
 
 public interface RestAPI {
@@ -16,4 +17,7 @@ public interface RestAPI {
     // TODO: Add missing endpoints
     @GET("filter.php")
     Call<RecipesByIngredientDTO> getRecipesByIngredient(@Query("i") String ingredient);
+
+    @GET("lookup.php")
+    Call<RecipesByIdDTO> getRecipeDetails(@Query("i") String recipeID);
 }

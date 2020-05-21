@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -34,10 +35,11 @@ import si.uni_lj.fri.pbd.miniapp3.rest.ServiceGenerator;
 
 public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
-
+    private int count = 0;
     private Spinner spinner;
     private MaterialProgressBar progressBar;
     private RecyclerView recyclerView;
+    private TextView noRecipes;
     private RestAPI apiService;
 
     private List<IngredientDTO> ingredients;
@@ -62,7 +64,7 @@ public class SearchFragment extends Fragment {
         progressBar = getActivity().findViewById(R.id.progress_bar);
         spinner = getActivity().findViewById(R.id.spinner);
         recyclerView = getActivity().findViewById(R.id.recipes_recycler_view);
-
+        noRecipes = getActivity().findViewById(R.id.noRecipesExist);
         getAllIngredients();
     }
 
@@ -91,7 +93,7 @@ public class SearchFragment extends Fragment {
 
     // configure RecyclerView with adapter
     private void configureRecyclerView() {
-        RecyclerViewAdapter rvAdapter = new RecyclerViewAdapter("SearchFragment", getContext(),recipes);
+        RecyclerViewAdapter rvAdapter = new RecyclerViewAdapter("SearchFragment", getContext(), recipes);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(rvAdapter);
     }
@@ -116,7 +118,7 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onFailure(Call<IngredientsDTO> call, Throwable t) {
-                Toast.makeText(getContext(), "PROBLEM", Toast.LENGTH_LONG);
+                Log.d(TAG, "getAllIngredients: ERROR");
             }
         });
     }
@@ -131,7 +133,15 @@ public class SearchFragment extends Fragment {
                     progressBar.setVisibility(View.INVISIBLE);
                     RecipesByIngredientDTO recipesByIngredientCall = response.body();
                     recipes = recipesByIngredientCall.getRecipes();
-                    configureRecyclerView();
+                    if(recipes == null) {
+                        recyclerView.setVisibility(View.INVISIBLE);
+                        noRecipes.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        noRecipes.setVisibility(View.INVISIBLE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                        configureRecyclerView();
+                    }
 
                     //for(RecipeSummaryDTO r : recipes)
                     //   Log.d(TAG, "onResponse: " + r.getStrMeal());
