@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -25,6 +26,8 @@ import retrofit2.Response;
 import si.uni_lj.fri.pbd.miniapp3.R;
 import si.uni_lj.fri.pbd.miniapp3.adapter.RecyclerViewAdapter;
 import si.uni_lj.fri.pbd.miniapp3.adapter.SpinnerAdapter;
+import si.uni_lj.fri.pbd.miniapp3.models.Mapper;
+import si.uni_lj.fri.pbd.miniapp3.models.RecipeSummaryIM;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.IngredientDTO;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.IngredientsDTO;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.RecipeSummaryDTO;
@@ -43,7 +46,7 @@ public class SearchFragment extends Fragment {
     private RestAPI apiService;
 
     private List<IngredientDTO> ingredients;
-    private List<RecipeSummaryDTO> recipes;
+    private List<RecipeSummaryIM> recipes;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -130,9 +133,18 @@ public class SearchFragment extends Fragment {
             @Override
             public void onResponse(Call<RecipesByIngredientDTO> call, Response<RecipesByIngredientDTO> response) {
                 if(response.code() == 200) {
+                    //hide progressBar
                     progressBar.setVisibility(View.INVISIBLE);
+
+                    //get recipes and convert them from DTO to IM
                     RecipesByIngredientDTO recipesByIngredientCall = response.body();
-                    recipes = recipesByIngredientCall.getRecipes();
+                    List<RecipeSummaryDTO> recipesDTOS = recipesByIngredientCall.getRecipes();
+                    recipes = new ArrayList<>();
+                    for(RecipeSummaryDTO r : recipesDTOS) {
+                        RecipeSummaryIM rsIM = new RecipeSummaryIM(r.getStrMeal(), r.getStrMealThumb(), r.getIdMeal());
+                        recipes.add(rsIM);
+                    }
+
                     if(recipes == null) {
                         recyclerView.setVisibility(View.INVISIBLE);
                         noRecipes.setVisibility(View.VISIBLE);

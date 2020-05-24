@@ -3,12 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="si.uni_lj.fri.pbd.miniapp3.ui.search.SearchFragment">
+    tools:context="si.uni_lj.fri.pbd.miniapp3.ui.search.SearchFragment"
+    android:id="@+id/layout">
 
+
+    <TextView
+        android:id="@+id/noFavoriteRecipes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="356dp"
+        android:text="@string/noFavoriteRecipes"
+        android:textAlignment="center"
+        app:layout_constraintStart_toStartOf="@+id/layout"
+        app:layout_constraintTop_toTopOf="@+id/layout" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recipes_recycler_view"
+        android:id="@+id/favorite_recipes_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

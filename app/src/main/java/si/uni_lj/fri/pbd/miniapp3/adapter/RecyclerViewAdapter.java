@@ -25,19 +25,29 @@ import java.net.URLConnection;
 import java.util.List;
 
 import si.uni_lj.fri.pbd.miniapp3.R;
+import si.uni_lj.fri.pbd.miniapp3.models.RecipeSummaryIM;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.RecipeSummaryDTO;
 import si.uni_lj.fri.pbd.miniapp3.ui.DetailsActivity;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecipeViewHolder> {
     private String instantiatedBy;
     private Context context;
-    private List<RecipeSummaryDTO> recipes;
+    //private List<RecipeSummaryDTO> recipes;
+    private List<RecipeSummaryIM> recipes;
 
+    public RecyclerViewAdapter(String instantiatedBy, Context context, List<RecipeSummaryIM> recipes) {
+        this.instantiatedBy = instantiatedBy;
+        this.context = context;
+        this.recipes = recipes;
+    }
+
+    /*
     public RecyclerViewAdapter(String instantiatedBy, Context context, List<RecipeSummaryDTO> recipes) {
         this.instantiatedBy = instantiatedBy;
         this.context = context;
         this.recipes = recipes;
     }
+     */
 
     class RecipeViewHolder extends RecyclerView.ViewHolder {
         public ImageView recipeImageView;
@@ -62,7 +72,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
-        RecipeSummaryDTO r = recipes.get(position);
+        //RecipeSummaryDTO r = recipes.get(position);
+        RecipeSummaryIM r = recipes.get(position);
         Glide.with(context).load(r.getStrMealThumb()).into(holder.recipeImageView);
         holder.recipeTextView.setText(r.getStrMeal());
 

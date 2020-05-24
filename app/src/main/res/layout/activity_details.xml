@@ -19,7 +19,7 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/recipeName"
+            android:id="@+id/recipeTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/recipeImage"
@@ -30,7 +30,7 @@
             android:id="@+id/recipeArea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/recipeName"
+            app:layout_constraintTop_toBottomOf="@+id/recipeTitle"
             android:layout_marginLeft="2dp"
             android:textSize="20dp" />
 
