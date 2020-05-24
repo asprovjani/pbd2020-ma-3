@@ -1,12 +1,19 @@
 package si.uni_lj.fri.pbd.miniapp3.ui.search;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,15 +45,20 @@ import si.uni_lj.fri.pbd.miniapp3.rest.ServiceGenerator;
 
 public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
-    private int count = 0;
+
     private Spinner spinner;
     private MaterialProgressBar progressBar;
     private RecyclerView recyclerView;
-    private TextView noRecipes;
+    private RecyclerViewAdapter rvAdapter;
+    private TextView error;
     private RestAPI apiService;
+    private SwipeRefreshLayout refreshLayout;
 
     private List<IngredientDTO> ingredients;
     private List<RecipeSummaryIM> recipes;
+
+    private ConnectivityManager mNwManager;
+    private ConnectivityManager.NetworkCallback mNwCallback;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -67,9 +79,47 @@ public class SearchFragment extends Fragment {
         progressBar = getActivity().findViewById(R.id.progress_bar);
         spinner = getActivity().findViewById(R.id.spinner);
         recyclerView = getActivity().findViewById(R.id.recipes_recycler_view);
-        noRecipes = getActivity().findViewById(R.id.noRecipesExist);
-        getAllIngredients();
+        error = getActivity().findViewById(R.id.errorMsg);
+        refreshLayout = getActivity().findViewById(R.id.ingredients_refresh_layout);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                IngredientDTO selectedIngredient = (IngredientDTO) spinner.getSelectedItem();
+                getRecipesByIngredient(selectedIngredient.getStrIngredient());
+
+                rvAdapter.notifyDataSetChanged();
+                refreshLayout.setRefreshing(false);
+            }
+        });
+
+        mNwCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                super.onAvailable(network);
+                getAllIngredients();
+            }
+        };
+
+        mNwManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        mNwManager.registerDefaultNetworkCallback(mNwCallback);
+
+        NetworkInfo networkInfo = mNwManager.getActiveNetworkInfo();
+        if(networkInfo == null)
+            showError(getString(R.string.noInternet));
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mNwManager.unregisterNetworkCallback(mNwCallback);
+    }
+
+    private void showError(String msg) {
+        recyclerView.setVisibility(View.INVISIBLE);
+        error.setText(msg);
+        error.setVisibility(View.VISIBLE);
+    }
+
 
     // configure spinner with adapter and onItemSelectedListener
     private void configureSpinner() {
@@ -96,29 +146,28 @@ public class SearchFragment extends Fragment {
 
     // configure RecyclerView with adapter
     private void configureRecyclerView() {
-        RecyclerViewAdapter rvAdapter = new RecyclerViewAdapter("SearchFragment", getContext(), recipes);
+        //RecyclerViewAdapter rvAdapter = new RecyclerViewAdapter("SearchFragment", getContext(), recipes);
+        rvAdapter = new RecyclerViewAdapter("SearchFragment", getContext(), recipes);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(rvAdapter);
     }
 
     // get all ingredients to populate spinner
     private void getAllIngredients() {
+
         Call<IngredientsDTO> ingredientsCall = apiService.getAllIngredients();
         ingredientsCall.enqueue(new Callback<IngredientsDTO>() {
             @Override
             public void onResponse(Call<IngredientsDTO> call, Response<IngredientsDTO> response) {
-                if(response.code() == 200) {
+                if (response.code() == 200) {
                     IngredientsDTO ingredientsCallResponse = response.body();
                     ingredients = ingredientsCallResponse.getIngredients();
-
                     //configure spinner with retrieved ingredients
                     configureSpinner();
-
                     //for(IngredientDTO i : ingredients)
                     //    Log.d(TAG, "onResponse: " + i.getStrIngredient());
                 }
             }
-
             @Override
             public void onFailure(Call<IngredientsDTO> call, Throwable t) {
                 Log.d(TAG, "getAllIngredients: ERROR");
@@ -139,18 +188,18 @@ public class SearchFragment extends Fragment {
                     //get recipes and convert them from DTO to IM
                     RecipesByIngredientDTO recipesByIngredientCall = response.body();
                     List<RecipeSummaryDTO> recipesDTOS = recipesByIngredientCall.getRecipes();
-                    recipes = new ArrayList<>();
-                    for(RecipeSummaryDTO r : recipesDTOS) {
-                        RecipeSummaryIM rsIM = new RecipeSummaryIM(r.getStrMeal(), r.getStrMealThumb(), r.getIdMeal());
-                        recipes.add(rsIM);
-                    }
 
-                    if(recipes == null) {
-                        recyclerView.setVisibility(View.INVISIBLE);
-                        noRecipes.setVisibility(View.VISIBLE);
+                    if(recipesDTOS == null) {
+                        showError(getString(R.string.noRecipesExist));
                     }
                     else {
-                        noRecipes.setVisibility(View.INVISIBLE);
+                        recipes = new ArrayList<>();
+                        for(RecipeSummaryDTO r : recipesDTOS) {
+                            RecipeSummaryIM rsIM = new RecipeSummaryIM(r.getStrMeal(), r.getStrMealThumb(), r.getIdMeal());
+                            recipes.add(rsIM);
+                        }
+
+                        error.setVisibility(View.INVISIBLE);
                         recyclerView.setVisibility(View.VISIBLE);
                         configureRecyclerView();
                     }

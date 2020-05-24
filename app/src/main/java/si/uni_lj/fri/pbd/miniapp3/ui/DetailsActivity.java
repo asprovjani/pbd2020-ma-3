@@ -4,7 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -45,6 +48,9 @@ public class DetailsActivity extends AppCompatActivity {
     private RestAPI apiService;
     private MainViewModel mViewModel;
 
+    private ConnectivityManager mNwManager;
+    private ConnectivityManager.NetworkCallback mNwCallback;
+
     private ImageView recipeImage;
     private TextView recipeTitle;
     private TextView recipeArea;
@@ -77,15 +83,16 @@ public class DetailsActivity extends AppCompatActivity {
 
         if(instantiatedBy.equals("SearchFragment")) {
             getRecipeDetails();
-            mViewModel.getAllRecipes().observe(this, new Observer<List<RecipeDetails>>() {
+            mViewModel.findRecipe(recipeID);
+            mViewModel.getRecipe().observe(this, new Observer<List<RecipeDetails>>() {
                 @Override
                 public void onChanged(List<RecipeDetails> recipeDetails) {
-                    for(RecipeDetails r : recipeDetails) {
-                        if(r.getIdMeal().equals(recipeID))
-                            if(r.getFavorite()) {
-                                favoriteButton.setChecked(true);
-                                checked = true;
-                            }
+                    if(recipeDetails.size() > 0) {
+                        RecipeDetails r = recipeDetails.get(0);
+                        if (r.getFavorite()) {
+                            favoriteButton.setChecked(true);
+                            checked = true;
+                        }
                     }
                 }
             });
@@ -93,6 +100,7 @@ public class DetailsActivity extends AppCompatActivity {
         else {
             getRecipeDetailsLocalStorage();
         }
+
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,7 +116,6 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     private void getRecipeDetails() {
@@ -132,10 +139,18 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void getRecipeDetailsLocalStorage() {
-        RecipeDetails r = mViewModel.getRecipe(recipeID);
-        if(r == null) {
-            Log.d(TAG, "getRecipeDetailsLocalStorage: NULL");
-        }
+        mViewModel.findRecipe(recipeID);
+        mViewModel.getRecipe().observe(this, new Observer<List<RecipeDetails>>() {
+            @Override
+            public void onChanged(List<RecipeDetails> recipeDetails) {
+                if(recipeDetails.size() > 0) {
+                    RecipeDetails r = recipeDetails.get(0);
+                    favoriteButton.setChecked(true);
+                    checked = true;
+                    updateUI(Mapper.mapRecipeDetailsToRecipeDetailsIm(true, recipeDetails.get(0)));
+                }
+            }
+        });
     }
 
     private void updateUI(RecipeDetailsIM r) {
