@@ -4,15 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +27,6 @@ import retrofit2.Response;
 import si.uni_lj.fri.pbd.miniapp3.MainViewModel;
 import si.uni_lj.fri.pbd.miniapp3.R;
 import si.uni_lj.fri.pbd.miniapp3.database.entity.RecipeDetails;
-import si.uni_lj.fri.pbd.miniapp3.database.repository.RecipeDetailsRepository;
 import si.uni_lj.fri.pbd.miniapp3.models.Mapper;
 import si.uni_lj.fri.pbd.miniapp3.models.RecipeDetailsIM;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.RecipeDetailsDTO;
@@ -78,15 +74,18 @@ public class DetailsActivity extends AppCompatActivity {
         instructions = findViewById(R.id.instructions);
         favoriteButton = findViewById(R.id.favoriteButton);
 
-        //get info about who started the activity and recipeID
+        // get info about who started the activity and recipeID
         Intent i = getIntent();
         instantiatedBy =  i.getStringExtra("instantiatedBy");
         recipeID =  i.getStringExtra("recipeID");
 
+        // set up connectivity manager
         mNwManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         networkInfo = mNwManager.getActiveNetworkInfo();
 
+        // check who started DetailsActivity, and get recipes from API/DB
         if(instantiatedBy.equals("SearchFragment")) {
+            // if no internet connection, show error, else get Recipe Details
             if(networkInfo == null)
                 Toast.makeText(this, getString(R.string.noInternet), Toast.LENGTH_LONG).show();
             else {
@@ -114,12 +113,12 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!checked) {
-                    Log.d(TAG, "onCheckedChanged: IMA");
+                    //add recipe to db
                     mViewModel.insertRecipe(Mapper.mapRecipeDetailsDtoToRecipeDetails(true, recipeDTO));
                     checked = true;
                 }
                 else {
-                    Log.d(TAG, "onCheckedChanged: NEMA");
+                    //remove recipe from db
                     mViewModel.deleteRecipe(recipeID);
                     checked = false;
                 }
@@ -127,6 +126,7 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
+    // get recipe details API
     private void getRecipeDetails() {
         Call<RecipesByIdDTO> recipeByIdCall = apiService.getRecipeDetails(recipeID);
         recipeByIdCall.enqueue(new Callback<RecipesByIdDTO>() {
@@ -147,6 +147,7 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
+    // get recipe details DB
     private void getRecipeDetailsLocalStorage() {
         mViewModel.findRecipe(recipeID);
         mViewModel.getRecipe().observe(this, new Observer<List<RecipeDetails>>() {

@@ -15,7 +15,6 @@ import si.uni_lj.fri.pbd.miniapp3.database.repository.RecipeDetailsRepository;
 public class MainViewModel extends AndroidViewModel {
 
     private RecipeDetailsRepository repository;
-    //private RecipeDetails recipe;
     private MutableLiveData<List<RecipeDetails>> recipe;
 
     private LiveData<List<RecipeDetails>> recipes;
@@ -32,10 +31,7 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<List<RecipeDetails>> getAllRecipes() {
         return recipes;
     }
-    /*
-    public RecipeDetails getRecipe(String recipeID) {
-        return repository.getRecipeDetails(recipeID);
-    } */
+
     public void findRecipe(String recipeID) {
         repository.findRecipe(recipeID);
     }

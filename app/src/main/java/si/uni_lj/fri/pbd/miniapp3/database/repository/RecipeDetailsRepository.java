@@ -46,20 +46,6 @@ public class RecipeDetailsRepository {
         return this.allRecipes;
     }
 
-    /*
-    public RecipeDetails getRecipeDetails(String recipeID) {
-        //may need fixing
-        final RecipeDetails[] result = new RecipeDetails[1];
-        Database.dbWriteExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                result[0] = recipeDao.getRecipeById(recipeID);
-            }
-        });
-
-        return result[0];
-    } */
-
     public void findRecipe(final String recipeID) {
         Database.dbWriteExecutor.execute(new Runnable() {
             @Override

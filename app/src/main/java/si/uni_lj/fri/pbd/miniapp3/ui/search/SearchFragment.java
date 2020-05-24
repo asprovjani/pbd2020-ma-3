@@ -3,7 +3,6 @@ package si.uni_lj.fri.pbd.miniapp3.ui.search;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +30,6 @@ import retrofit2.Response;
 import si.uni_lj.fri.pbd.miniapp3.R;
 import si.uni_lj.fri.pbd.miniapp3.adapter.RecyclerViewAdapter;
 import si.uni_lj.fri.pbd.miniapp3.adapter.SpinnerAdapter;
-import si.uni_lj.fri.pbd.miniapp3.models.Mapper;
 import si.uni_lj.fri.pbd.miniapp3.models.RecipeSummaryIM;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.IngredientDTO;
 import si.uni_lj.fri.pbd.miniapp3.models.dto.IngredientsDTO;
@@ -89,20 +85,22 @@ public class SearchFragment extends Fragment {
             public void onRefresh() {
                 endTime = System.currentTimeMillis();
 
+                // if 5 seconds have passed since last refresh, fetch data
                 if ((endTime - startTime) / 1000 >= 5) {
                     IngredientDTO selectedIngredient = (IngredientDTO) spinner.getSelectedItem();
                     networkInfo = mNwManager.getActiveNetworkInfo();
+                    //if not connected to internet show error
                     if(networkInfo == null)
                         showError(getString(R.string.noInternet));
                     else {
                         getRecipesByIngredient(selectedIngredient.getStrIngredient());
                         rvAdapter.notifyDataSetChanged();
                     }
-
                 }
 
                 refreshLayout.setRefreshing(false);
 
+                // update startTime
                 startTime = endTime;
             }
         });
@@ -111,13 +109,16 @@ public class SearchFragment extends Fragment {
             @Override
             public void onAvailable(Network network) {
                 super.onAvailable(network);
+                //when connected to internet, fetch data
                 getAllIngredients();
             }
         };
 
+        // set up Connectivity Manager
         mNwManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         mNwManager.registerDefaultNetworkCallback(mNwCallback);
 
+        // if not connected to internet show error
         networkInfo = mNwManager.getActiveNetworkInfo();
         if(networkInfo == null)
             showError(getString(R.string.noInternet));
@@ -146,9 +147,10 @@ public class SearchFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 IngredientDTO selectedIngredient = (IngredientDTO) parent.getItemAtPosition(position);
 
-                //show progressBar while recipes are being downloaded
+                // show progressBar while recipes are being downloaded
                 progressBar.setVisibility(View.VISIBLE);
 
+                // if not connected to internet show error, else get recipe for selected ingredient
                 networkInfo = mNwManager.getActiveNetworkInfo();
                 if(networkInfo == null)
                     showError(getString(R.string.noInternet));
@@ -181,10 +183,8 @@ public class SearchFragment extends Fragment {
                 if (response.code() == 200) {
                     IngredientsDTO ingredientsCallResponse = response.body();
                     ingredients = ingredientsCallResponse.getIngredients();
-                    //configure spinner with retrieved ingredients
+                    // configure spinner with retrieved ingredients
                     configureSpinner();
-                    //for(IngredientDTO i : ingredients)
-                    //    Log.d(TAG, "onResponse: " + i.getStrIngredient());
                 }
             }
             @Override
@@ -201,13 +201,14 @@ public class SearchFragment extends Fragment {
             @Override
             public void onResponse(Call<RecipesByIngredientDTO> call, Response<RecipesByIngredientDTO> response) {
                 if(response.code() == 200) {
-                    //hide progressBar
+                    // hide progressBar
                     progressBar.setVisibility(View.INVISIBLE);
 
-                    //get recipes and convert them from DTO to IM
+                    // get recipes and convert them from DTO to IM
                     RecipesByIngredientDTO recipesByIngredientCall = response.body();
                     List<RecipeSummaryDTO> recipesDTOS = recipesByIngredientCall.getRecipes();
 
+                    // if no recipes found show error
                     if(recipesDTOS == null) {
                         showError(getString(R.string.noRecipesExist));
                     }
@@ -222,9 +223,6 @@ public class SearchFragment extends Fragment {
                         recyclerView.setVisibility(View.VISIBLE);
                         configureRecyclerView();
                     }
-
-                    //for(RecipeSummaryDTO r : recipes)
-                    //   Log.d(TAG, "onResponse: " + r.getStrMeal());
                 }
             }
 

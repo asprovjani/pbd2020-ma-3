@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,10 +24,7 @@ import si.uni_lj.fri.pbd.miniapp3.R;
 import si.uni_lj.fri.pbd.miniapp3.adapter.RecyclerViewAdapter;
 import si.uni_lj.fri.pbd.miniapp3.database.entity.RecipeDetails;
 import si.uni_lj.fri.pbd.miniapp3.models.Mapper;
-import si.uni_lj.fri.pbd.miniapp3.models.RecipeDetailsIM;
 import si.uni_lj.fri.pbd.miniapp3.models.RecipeSummaryIM;
-import si.uni_lj.fri.pbd.miniapp3.models.dto.RecipeDetailsDTO;
-import si.uni_lj.fri.pbd.miniapp3.models.dto.RecipeSummaryDTO;
 
 
 public class FavoritesFragment extends Fragment {
@@ -60,6 +56,7 @@ public class FavoritesFragment extends Fragment {
         getRecipes();
     }
 
+    // get Recipes from DB
     private void getRecipes() {
         mViewModel.getAllRecipes().observe(getViewLifecycleOwner(), new Observer<List<RecipeDetails>>() {
             @Override
@@ -69,6 +66,7 @@ public class FavoritesFragment extends Fragment {
                   recipes.add(Mapper.mapRecipeDetailsToRecipeSummaryIm(r));
                 }
 
+                // if no recipes found show error, else show favorite recipes
                 if(recipes.size() == 0) {
                     recyclerView.setVisibility(View.INVISIBLE);
                     noRecipes.setVisibility(View.VISIBLE);
@@ -83,7 +81,6 @@ public class FavoritesFragment extends Fragment {
     }
 
     // configure RecyclerView with adapter
-
     private void configureRecyclerView() {
         RecyclerViewAdapter rvAdapter = new RecyclerViewAdapter("FavoritesFragment", getContext(), recipes);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
