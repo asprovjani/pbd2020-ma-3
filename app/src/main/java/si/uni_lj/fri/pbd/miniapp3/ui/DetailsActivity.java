@@ -8,12 +8,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.amitshekhar.DebugDB;
@@ -49,7 +51,7 @@ public class DetailsActivity extends AppCompatActivity {
     private MainViewModel mViewModel;
 
     private ConnectivityManager mNwManager;
-    private ConnectivityManager.NetworkCallback mNwCallback;
+    private NetworkInfo networkInfo;
 
     private ImageView recipeImage;
     private TextView recipeTitle;
@@ -81,21 +83,28 @@ public class DetailsActivity extends AppCompatActivity {
         instantiatedBy =  i.getStringExtra("instantiatedBy");
         recipeID =  i.getStringExtra("recipeID");
 
+        mNwManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        networkInfo = mNwManager.getActiveNetworkInfo();
+
         if(instantiatedBy.equals("SearchFragment")) {
-            getRecipeDetails();
-            mViewModel.findRecipe(recipeID);
-            mViewModel.getRecipe().observe(this, new Observer<List<RecipeDetails>>() {
-                @Override
-                public void onChanged(List<RecipeDetails> recipeDetails) {
-                    if(recipeDetails.size() > 0) {
-                        RecipeDetails r = recipeDetails.get(0);
-                        if (r.getFavorite()) {
-                            favoriteButton.setChecked(true);
-                            checked = true;
+            if(networkInfo == null)
+                Toast.makeText(this, getString(R.string.noInternet), Toast.LENGTH_LONG).show();
+            else {
+                getRecipeDetails();
+                mViewModel.findRecipe(recipeID);
+                mViewModel.getRecipe().observe(this, new Observer<List<RecipeDetails>>() {
+                    @Override
+                    public void onChanged(List<RecipeDetails> recipeDetails) {
+                        if (recipeDetails.size() > 0) {
+                            RecipeDetails r = recipeDetails.get(0);
+                            if (r.getFavorite()) {
+                                favoriteButton.setChecked(true);
+                                checked = true;
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
         else {
             getRecipeDetailsLocalStorage();

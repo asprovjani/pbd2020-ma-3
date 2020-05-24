@@ -56,9 +56,11 @@ public class SearchFragment extends Fragment {
 
     private List<IngredientDTO> ingredients;
     private List<RecipeSummaryIM> recipes;
+    private long startTime, endTime;
 
     private ConnectivityManager mNwManager;
     private ConnectivityManager.NetworkCallback mNwCallback;
+    private NetworkInfo networkInfo;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -75,6 +77,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        startTime = System.currentTimeMillis();
         apiService = ServiceGenerator.createService(RestAPI.class);
         progressBar = getActivity().findViewById(R.id.progress_bar);
         spinner = getActivity().findViewById(R.id.spinner);
@@ -84,11 +87,23 @@ public class SearchFragment extends Fragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                IngredientDTO selectedIngredient = (IngredientDTO) spinner.getSelectedItem();
-                getRecipesByIngredient(selectedIngredient.getStrIngredient());
+                endTime = System.currentTimeMillis();
 
-                rvAdapter.notifyDataSetChanged();
+                if ((endTime - startTime) / 1000 >= 5) {
+                    IngredientDTO selectedIngredient = (IngredientDTO) spinner.getSelectedItem();
+                    networkInfo = mNwManager.getActiveNetworkInfo();
+                    if(networkInfo == null)
+                        showError(getString(R.string.noInternet));
+                    else {
+                        getRecipesByIngredient(selectedIngredient.getStrIngredient());
+                        rvAdapter.notifyDataSetChanged();
+                    }
+
+                }
+
                 refreshLayout.setRefreshing(false);
+
+                startTime = endTime;
             }
         });
 
@@ -103,7 +118,7 @@ public class SearchFragment extends Fragment {
         mNwManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         mNwManager.registerDefaultNetworkCallback(mNwCallback);
 
-        NetworkInfo networkInfo = mNwManager.getActiveNetworkInfo();
+        networkInfo = mNwManager.getActiveNetworkInfo();
         if(networkInfo == null)
             showError(getString(R.string.noInternet));
     }
@@ -134,7 +149,11 @@ public class SearchFragment extends Fragment {
                 //show progressBar while recipes are being downloaded
                 progressBar.setVisibility(View.VISIBLE);
 
-                getRecipesByIngredient(selectedIngredient.getStrIngredient());
+                networkInfo = mNwManager.getActiveNetworkInfo();
+                if(networkInfo == null)
+                    showError(getString(R.string.noInternet));
+                else
+                    getRecipesByIngredient(selectedIngredient.getStrIngredient());
             }
 
             @Override
