@@ -227,7 +227,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         String result = "";
         for(String measurement : measurements) {
-            if(!measurement.equals(""))
+            if(!measurement.equals(" ") || !measurement.equals(""))
                 result += measurement + ", ";
         }
 
